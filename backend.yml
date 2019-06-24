@@ -59,7 +59,7 @@
   tasks:
 
     - name: Compute Load Balancer Variables
-      import_playbook: load_balancer_variables.yml
+      import_tasks: load_balancer_variables.yml
     
     - name: Compute Current Data Server
       set_fact:
@@ -136,7 +136,6 @@
         group: root
         mode: 'u=rw,g=,o='
       become: true
-
 
     - name: Create EC2 Elastic Load Balancer (ELB) for Data Servers
       elb_classic_lb:
