@@ -46,7 +46,60 @@
 
 - name: Configure Data Server System
   hosts: data_server_systems
+  serial: 1 # only take one Data Server out of rotation at a time
+
+  # Needs to be specified here, as it's not configured properly on the host
+  # itself. (Note: `169.254.169.254` is the EC2 instance metadata address, per
+  # <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html>.)
+  environment:
+    no_proxy: 'localhost,169.254.169.254'
+    http_proxy: "http://{{ vault_proxy_host }}:{{ vault_proxy_port }}"
+    https_proxy: "http://{{ vault_proxy_host }}:{{ vault_proxy_port }}"
+
   tasks:
+
+    - name: Compute Load Balancer Variables
+      import_playbook: load_balancer_variables.yml
+    
+    - name: Compute Current Data Server
+      set_fact:
+        data_server: "{{ deployment_environments | selectattr('instance.private_ip_address', 'equalto', ansible_host) | list[0] }}"
+
+    - name: Create EC2 Elastic Load Balancer (ELB) for Data Servers
+      elb_classic_lb:
+        name: "{{ deployment_environments[data_server.env_name].data_server_elb.elb_name }}"
+        state: 'present'
+        connection_draining_timeout: 300
+        idle_timeout: 60
+        scheme: "{{ 'internet-facing' if deployment_environments[data_server.env_name].internet_facing else 'internal' }}"
+        region: "{{ aws_region }}"
+        subnets: "{{ elb_subnets_by_env[data_server.env_name] | map(attribute='facts.subnet_id') | list }}"
+        purge_subnets: true
+        cross_az_load_balancing: false
+        security_group_names: "{{ deployment_environments[data_server.env_name].data_server_elb.security_group_names }}"
+        instance_ids: "{{ data_servers_by_env[data_server.env] | selectattr('private_ip_address', 'ne', ansible_host) | map(attribute='instance_id') | list }}"
+        purge_instance_ids: true
+        listeners:
+          - protocol: 'tcp'
+            load_balancer_port: "{{ vault_data_server_port_load_balancer }}"
+            instance_port: "{{ vault_data_server_port_internal }}"
+        health_check:
+          ping_protocol: tcp
+          ping_port: "{{ vault_data_server_port_internal }}"
+          response_timeout: 5
+          interval: 10
+          unhealthy_threshold: 2
+          healthy_threshold: 5
+        access_logs:
+          interval: 5 # minutes (default is 60 minutes)
+          s3_location: "{{ deployment_environments[data_server.env].data_server_elb.access_logs_s3_bucket_name }}"
+          s3_prefix: "elb_access_logs/{{ item.env_name }}"
+        tags:
+          Name: "{{ deployment_environments[data_server.env_name].data_server_elb.elb_name }}"
+          ENVIRONMENT: "{{ data_server.env_name }}"
+        wait: true
+      delegate_to: localhost
+
     - name: Apply Blue Button Data Server Role
       import_role:
         name: karlmdavis.bluebutton_data_server
@@ -72,6 +125,7 @@
         data_server_db_username: "{{ vault_data_server_db_username }}"
         data_server_db_password: "{{ vault_data_server_db_password }}"
         data_server_db_connections_max: 400
+
     - name: Copy Local Test SSL Keypair
       copy:
         # Note: This PEM file is encrypted within the project via Ansible Vault, which will
@@ -83,5 +137,39 @@
         mode: 'u=rw,g=,o='
       become: true
 
-- name: Configure Load Balancers
-  import_playbook: load_balancers.yml
+
+    - name: Create EC2 Elastic Load Balancer (ELB) for Data Servers
+      elb_classic_lb:
+        name: "{{ deployment_environments[data_server.env_name].data_server_elb.elb_name }}"
+        state: 'present'
+        connection_draining_timeout: 300
+        idle_timeout: 60
+        scheme: "{{ 'internet-facing' if deployment_environments[data_server.env_name].internet_facing else 'internal' }}"
+        region: "{{ aws_region }}"
+        subnets: "{{ elb_subnets_by_env[data_server.env_name] | map(attribute='facts.subnet_id') | list }}"
+        purge_subnets: true
+        cross_az_load_balancing: false
+        security_group_names: "{{ deployment_environments[data_server.env_name].data_server_elb.security_group_names }}"
+        instance_ids: "{{ data_servers_by_env[data_server.env] | map(attribute='instance_id') | list }}"
+        purge_instance_ids: true
+        listeners:
+          - protocol: 'tcp'
+            load_balancer_port: "{{ vault_data_server_port_load_balancer }}"
+            instance_port: "{{ vault_data_server_port_internal }}"
+        health_check:
+          ping_protocol: tcp
+          ping_port: "{{ vault_data_server_port_internal }}"
+          response_timeout: 5
+          interval: 10
+          unhealthy_threshold: 2
+          healthy_threshold: 5
+        access_logs:
+          interval: 5 # minutes (default is 60 minutes)
+          s3_location: "{{ deployment_environments[data_server.env].data_server_elb.access_logs_s3_bucket_name }}"
+          s3_prefix: "elb_access_logs/{{ item.env_name }}"
+        tags:
+          Name: "{{ deployment_environments[data_server.env_name].data_server_elb.elb_name }}"
+          ENVIRONMENT: "{{ data_server.env_name }}"
+        wait: true
+      delegate_to: localhost
+
