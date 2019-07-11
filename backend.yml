@@ -63,7 +63,7 @@
     
     - name: Compute Current Data Server
       set_fact:
-        data_server: "{{ deployment_environments | selectattr('instance.private_ip_address', 'equalto', ansible_host) | list | first }}"
+        data_server: "{{ data_servers_with_env | selectattr('instance.private_ip_address', 'equalto', ansible_host) | list | first }}"
 
     - name: Create EC2 Elastic Load Balancer (ELB) for Data Servers
       elb_classic_lb:
