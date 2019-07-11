@@ -61,6 +61,7 @@
     - name: Compute Load Balancer Variables
       import_tasks: load_balancer_variables.yml
     
+    - debug: var=data_servers_with_env
     - name: Compute Current Data Server
       set_fact:
         data_server: "{{ data_servers_with_env | selectattr('instance.private_ip_address', 'equalto', ansible_host) | list | first }}"
