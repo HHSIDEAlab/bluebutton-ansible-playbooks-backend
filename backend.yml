@@ -69,17 +69,17 @@
 
     - name: Create EC2 Elastic Load Balancer (ELB) for Data Servers
       elb_classic_lb:
-        name: "{{ deployment_environments[data_server.env_name].data_server_elb.elb_name }}"
+        name: "{{ deployment_environments_by_env_name[data_server.env_name].data_server_elb.elb_name }}"
         state: 'present'
         connection_draining_timeout: 300
         idle_timeout: 60
-        scheme: "{{ 'internet-facing' if deployment_environments[data_server.env_name].internet_facing else 'internal' }}"
+        scheme: "{{ 'internet-facing' if deployment_environments_by_env_name[data_server.env_name].internet_facing else 'internal' }}"
         region: "{{ aws_region }}"
         subnets: "{{ elb_subnets_by_env[data_server.env_name] | map(attribute='facts.subnet_id') | list }}"
         purge_subnets: true
         cross_az_load_balancing: false
-        security_group_names: "{{ deployment_environments[data_server.env_name].data_server_elb.security_group_names }}"
-        instance_ids: "{{ data_servers_by_env[data_server.env] | selectattr('private_ip_address', 'ne', ansible_host) | map(attribute='instance_id') | list }}"
+        security_group_names: "{{ deployment_environments_by_env_name[data_server.env_name].data_server_elb.security_group_names }}"
+        instance_ids: "{{ data_servers_by_env[data_server.env_name] | selectattr('private_ip_address', 'ne', ansible_host) | map(attribute='instance_id') | list }}"
         purge_instance_ids: true
         listeners:
           - protocol: 'tcp'
@@ -94,10 +94,10 @@
           healthy_threshold: 5
         access_logs:
           interval: 5 # minutes (default is 60 minutes)
-          s3_location: "{{ deployment_environments[data_server.env].data_server_elb.access_logs_s3_bucket_name }}"
+          s3_location: "{{ deployment_environments_by_env_name[data_server.env_name].data_server_elb.access_logs_s3_bucket_name }}"
           s3_prefix: "elb_access_logs/{{ data_server.env_name }}"
         tags:
-          Name: "{{ deployment_environments[data_server.env_name].data_server_elb.elb_name }}"
+          Name: "{{ deployment_environments_by_env_name[data_server.env_name].data_server_elb.elb_name }}"
           ENVIRONMENT: "{{ data_server.env_name }}"
         wait: true
       delegate_to: localhost
@@ -141,17 +141,17 @@
 
     - name: Create EC2 Elastic Load Balancer (ELB) for Data Servers
       elb_classic_lb:
-        name: "{{ deployment_environments[data_server.env_name].data_server_elb.elb_name }}"
+        name: "{{ deployment_environments_by_env_name[data_server.env_name].data_server_elb.elb_name }}"
         state: 'present'
         connection_draining_timeout: 300
         idle_timeout: 60
-        scheme: "{{ 'internet-facing' if deployment_environments[data_server.env_name].internet_facing else 'internal' }}"
+        scheme: "{{ 'internet-facing' if deployment_environments_by_env_name[data_server.env_name].internet_facing else 'internal' }}"
         region: "{{ aws_region }}"
         subnets: "{{ elb_subnets_by_env[data_server.env_name] | map(attribute='facts.subnet_id') | list }}"
         purge_subnets: true
         cross_az_load_balancing: false
-        security_group_names: "{{ deployment_environments[data_server.env_name].data_server_elb.security_group_names }}"
-        instance_ids: "{{ data_servers_by_env[data_server.env] | map(attribute='instance_id') | list }}"
+        security_group_names: "{{ deployment_environments_by_env_name[data_server.env_name].data_server_elb.security_group_names }}"
+        instance_ids: "{{ data_servers_by_env[data_server.env_name] | map(attribute='instance_id') | list }}"
         purge_instance_ids: true
         listeners:
           - protocol: 'tcp'
@@ -166,10 +166,10 @@
           healthy_threshold: 5
         access_logs:
           interval: 5 # minutes (default is 60 minutes)
-          s3_location: "{{ deployment_environments[data_server.env].data_server_elb.access_logs_s3_bucket_name }}"
-          s3_prefix: "elb_access_logs/{{ item.env_name }}"
+          s3_location: "{{ deployment_environments_by_env_name[data_server.env_name].data_server_elb.access_logs_s3_bucket_name }}"
+          s3_prefix: "elb_access_logs/{{ data_server.env_name }}"
         tags:
-          Name: "{{ deployment_environments[data_server.env_name].data_server_elb.elb_name }}"
+          Name: "{{ deployment_environments_by_env_name[data_server.env_name].data_server_elb.elb_name }}"
           ENVIRONMENT: "{{ data_server.env_name }}"
         wait: true
       delegate_to: localhost

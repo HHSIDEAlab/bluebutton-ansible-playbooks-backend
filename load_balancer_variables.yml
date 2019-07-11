@@ -28,6 +28,10 @@
       {%- set aws_vpcs = aws_vpcs + (aws_vpcs_dp if 'dp' in limit_envs else []) %}
       {%- set aws_vpcs = aws_vpcs + (aws_vpcs_pd if 'pd' in limit_envs else []) %}
       {{- aws_vpcs }}
+    deployment_environments_by_env_name:
+      ts: "{{ deployment_environment_ts }}"
+      dp: "{{ deployment_environment_dp }}"
+      pd: "{{ deployment_environment_pd }}"
     deployment_environments: >
       {%- set deployment_environments = [] %}
       {%- set deployment_environments = deployment_environments + ([deployment_environment_ts] if 'ts' in limit_envs else []) %}
