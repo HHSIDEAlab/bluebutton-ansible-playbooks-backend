@@ -73,7 +73,7 @@
         state: 'present'
         connection_draining_timeout: 300
         idle_timeout: 60
-        scheme: "{{ 'internet-facing' if deployment_environments_by_env_name[data_server.env_name].internet_facing else 'internal' }}"
+        scheme: "{{ 'internet-facing' if deployment_environments_by_env_name[data_server.env_name].data_server_elb.internet_facing else 'internal' }}"
         region: "{{ aws_region }}"
         subnets: "{{ elb_subnets_by_env[data_server.env_name] | map(attribute='facts.subnet_id') | list }}"
         purge_subnets: true
@@ -145,7 +145,7 @@
         state: 'present'
         connection_draining_timeout: 300
         idle_timeout: 60
-        scheme: "{{ 'internet-facing' if deployment_environments_by_env_name[data_server.env_name].internet_facing else 'internal' }}"
+        scheme: "{{ 'internet-facing' if deployment_environments_by_env_name[data_server.env_name].data_server_elb.internet_facing else 'internal' }}"
         region: "{{ aws_region }}"
         subnets: "{{ elb_subnets_by_env[data_server.env_name] | map(attribute='facts.subnet_id') | list }}"
         purge_subnets: true
