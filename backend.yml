@@ -64,7 +64,7 @@
     - debug: var=data_servers_with_env
     - name: Compute Current Data Server
       set_fact:
-        data_server: "{{ data_servers_with_env[ansible_host] | list | first }}"
+        data_server: "{{ data_servers_with_env[ansible_default_ipv4.address] | list | first }}"
 
     - name: Create EC2 Elastic Load Balancer (ELB) for Data Servers
       elb_classic_lb:
