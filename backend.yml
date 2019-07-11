@@ -65,6 +65,7 @@
     - name: Compute Current Data Server
       set_fact:
         data_server: "{{ data_servers_with_env[ansible_default_ipv4.address] | list | first }}"
+    - debug: var=data_server
 
     - name: Create EC2 Elastic Load Balancer (ELB) for Data Servers
       elb_classic_lb:
@@ -94,7 +95,7 @@
         access_logs:
           interval: 5 # minutes (default is 60 minutes)
           s3_location: "{{ deployment_environments[data_server.env].data_server_elb.access_logs_s3_bucket_name }}"
-          s3_prefix: "elb_access_logs/{{ item.env_name }}"
+          s3_prefix: "elb_access_logs/{{ data_server.env_name }}"
         tags:
           Name: "{{ deployment_environments[data_server.env_name].data_server_elb.elb_name }}"
           ENVIRONMENT: "{{ data_server.env_name }}"
