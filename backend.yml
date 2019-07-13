@@ -61,11 +61,9 @@
     - name: Compute Load Balancer Variables
       import_tasks: load_balancer_variables.yml
     
-    - debug: var=data_servers_with_env
     - name: Compute Current Data Server
       set_fact:
         data_server: "{{ data_servers_with_env[ansible_default_ipv4.address] }}"
-    - debug: var=data_server
 
     - name: Create EC2 Elastic Load Balancer (ELB) for Data Servers
       elb_classic_lb:
