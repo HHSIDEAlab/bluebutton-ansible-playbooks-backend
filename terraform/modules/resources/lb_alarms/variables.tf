@@ -6,6 +6,7 @@ variable "load_balancer_name" {
 variable "cloudwatch_notification_arn" {
   description = "The CloudWatch notification ARN."
   type        = "string"
+  default     = null
 }
 
 variable "app" {
@@ -16,32 +17,38 @@ variable "env" {
   type = string
 }
 
+# Common Metrics 
+
 variable "healthy_hosts" {
   type    = object({period: number, eval_periods: number, threshold: number})
   default = null
 }
 
-variable "high_latency" {
+# Classic ELB Metrics
+
+variable "clb_spillover_count" {
   type    = object({period: number, eval_periods: number, threshold: number})
   default = null
 }
 
-variable "spillover_count" {
+variable "clb_surge_queue_length" {
   type    = object({period: number, eval_periods: number, threshold: number})
   default = null
 }
 
-variable "surge_queue_length" {
+# ALB Metrics
+
+variable "alb_high_latency" {
   type    = object({period: number, eval_periods: number, threshold: number})
   default = null
 }
 
-variable "status_4xx" {
+variable "alb_status_4xx" {
   type    = object({period: number, eval_periods: number, threshold: number})
   default = null
 }
 
-variable "rate_of_5xx" {
+variable "alb_rate_of_5xx" {
   type    = object({period: number, eval_periods: number, threshold: number})
   default = null
 }

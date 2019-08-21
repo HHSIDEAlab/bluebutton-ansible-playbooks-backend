@@ -115,10 +115,11 @@ module "etl_iam" {
 }
 
 
-# LB for the FHIR server
+# NLB for the FHIR server (SSL terminated by the FHIR server)
 #
 module "fhir_lb" {
   source = "../resources/lb"
+  load_balancer_type = "network"
 
   env_config      = local.env_config
   role            = "fhir"
@@ -136,22 +137,11 @@ module "lb_alarms" {
   env                           = var.env_config.env
   app                           = "bfd"
 
+  # NLBs only have this metric to alarm on
   healthy_hosts   = {
     eval_periods  = local.cw_eval_periods
     period        = local.cw_period
     threshold     = 1     # Count
-  }
-
-  high_latency    = {
-    eval_periods  = local.cw_eval_periods
-    period        = local.cw_period
-    threshold     = 10.0  # seconds
-  }
-
-  rate_of_5xx     = {
-    eval_periods  = local.cw_eval_periods
-    period        = local.cw_period
-    threshold     = 10.0  # percent
   }
 }
 
