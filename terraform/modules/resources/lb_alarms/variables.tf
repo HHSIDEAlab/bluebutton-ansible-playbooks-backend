@@ -1,56 +1,47 @@
+variable "load_balancer_name" {
+  description = "Name of the ELB these alarms are for."
+  type        = "string"
+}
+
 variable "cloudwatch_notification_arn" {
   description = "The CloudWatch notification ARN."
   type        = "string"
 }
 
 variable "app" {
-  type        = string
+  type = string
 }
 
 variable "env" {
-  type        = string
+  type = string
 }
 
-variable "rds_name" {
-  type        = string
-}
-
-variable "high_cpu" {
+variable "healthy_hosts" {
   type    = object({period: number, eval_periods: number, threshold: number})
   default = null
 }
 
-variable "free_storage" {
+variable "high_latency" {
   type    = object({period: number, eval_periods: number, threshold: number})
   default = null
 }
 
-variable "write_latency" {
+variable "spillover_count" {
   type    = object({period: number, eval_periods: number, threshold: number})
   default = null
 }
 
-variable "read_latency" {
+variable "surge_queue_length" {
   type    = object({period: number, eval_periods: number, threshold: number})
   default = null
 }
 
-variable "swap_usage" {
+variable "status_4xx" {
   type    = object({period: number, eval_periods: number, threshold: number})
   default = null
 }
 
-variable "disk_queue_depth" {
-  type    = object({period: number, eval_periods: number, threshold: number})
-  default = null
-}
-
-variable "free_memory" {
-  type    = object({period: number, eval_periods: number, threshold: number})
-  default = null
-}
-
-variable "replica_lag" {
+variable "rate_of_5xx" {
   type    = object({period: number, eval_periods: number, threshold: number})
   default = null
 }
