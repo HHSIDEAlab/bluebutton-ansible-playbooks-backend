@@ -4,6 +4,11 @@
 #
 ##
 
+locals {
+  alarm_actions       = var.cloudwatch_notification_arn == null ? [] : [var.cloudwatch_notification_arn]
+  ok_actions          = var.cloudwatch_notification_arn == null ? [] : [var.cloudwatch_notification_arn]
+}
+
 resource "aws_cloudwatch_metric_alarm" "rds_high_cpu" {
   count               = var.high_cpu == null ? 0 : 1
   alarm_name          = "${var.rds_name}-rds-high-cpu"
@@ -22,8 +27,8 @@ resource "aws_cloudwatch_metric_alarm" "rds_high_cpu" {
   }
 
   treat_missing_data = "notBreaching"
-  alarm_actions      = [var.cloudwatch_notification_arn]
-  ok_actions         = [var.cloudwatch_notification_arn]
+  alarm_actions      = local.alarm_actions
+  ok_actions         = local.ok_actions
 }
 
 resource "aws_cloudwatch_metric_alarm" "rds_free_storage" {
@@ -44,8 +49,8 @@ resource "aws_cloudwatch_metric_alarm" "rds_free_storage" {
   }
 
   treat_missing_data = "notBreaching"
-  alarm_actions      = [var.cloudwatch_notification_arn]
-  ok_actions         = [var.cloudwatch_notification_arn]
+  alarm_actions      = local.alarm_actions
+  ok_actions         = local.ok_actions
 }
 
 resource "aws_cloudwatch_metric_alarm" "rds_write_latency" {
@@ -66,8 +71,8 @@ resource "aws_cloudwatch_metric_alarm" "rds_write_latency" {
   }
 
   treat_missing_data = "notBreaching"
-  alarm_actions      = [var.cloudwatch_notification_arn]
-  ok_actions         = [var.cloudwatch_notification_arn]
+  alarm_actions      = local.alarm_actions
+  ok_actions         = local.ok_actions
 }
 
 resource "aws_cloudwatch_metric_alarm" "rds_read_latency" {
@@ -88,8 +93,8 @@ resource "aws_cloudwatch_metric_alarm" "rds_read_latency" {
   }
 
   treat_missing_data = "notBreaching"
-  alarm_actions      = [var.cloudwatch_notification_arn]
-  ok_actions         = [var.cloudwatch_notification_arn]
+  alarm_actions      = local.alarm_actions
+  ok_actions         = local.ok_actions
 }
 
 resource "aws_cloudwatch_metric_alarm" "rds_swap_usage" {
@@ -110,8 +115,8 @@ resource "aws_cloudwatch_metric_alarm" "rds_swap_usage" {
   }
 
   treat_missing_data = "notBreaching"
-  alarm_actions      = [var.cloudwatch_notification_arn]
-  ok_actions         = [var.cloudwatch_notification_arn]
+  alarm_actions      = local.alarm_actions
+  ok_actions         = local.ok_actions
 }
 
 resource "aws_cloudwatch_metric_alarm" "rds_disk_queue_depth" {
@@ -132,8 +137,8 @@ resource "aws_cloudwatch_metric_alarm" "rds_disk_queue_depth" {
   }
 
   treat_missing_data = "notBreaching"
-  alarm_actions      = [var.cloudwatch_notification_arn]
-  ok_actions         = [var.cloudwatch_notification_arn]
+  alarm_actions      = local.alarm_actions
+  ok_actions         = local.ok_actions
 }
 
 resource "aws_cloudwatch_metric_alarm" "rds_free_memory" {
@@ -154,8 +159,8 @@ resource "aws_cloudwatch_metric_alarm" "rds_free_memory" {
   }
 
   treat_missing_data = "notBreaching"
-  alarm_actions      = [var.cloudwatch_notification_arn]
-  ok_actions         = [var.cloudwatch_notification_arn]
+  alarm_actions      = local.alarm_actions
+  ok_actions         = local.ok_actions
 }
 
 resource "aws_cloudwatch_metric_alarm" "rds_replica_lag" {
@@ -176,6 +181,6 @@ resource "aws_cloudwatch_metric_alarm" "rds_replica_lag" {
   }
 
   treat_missing_data = "notBreaching"
-  alarm_actions      = [var.cloudwatch_notification_arn]
-  ok_actions         = [var.cloudwatch_notification_arn]
+  alarm_actions      = local.alarm_actions
+  ok_actions         = local.ok_actions
 }
