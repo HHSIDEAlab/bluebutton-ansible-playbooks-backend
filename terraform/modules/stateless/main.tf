@@ -123,7 +123,7 @@ module "fhir_lb" {
 
   env_config      = local.env_config
   role            = "fhir"
-  layer           = "app"
+  layer           = "dmz"
   log_bucket      = data.aws_s3_bucket.admin.id
   ingress_port    = 443
   egress_port     = 7443
